@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,7 @@ namespace Hypercasual_Rukajuu
 {
     public class Platform_Mover : MonoBehaviour
     {
-        #region Psudoecode
+        #region Psudoecode for moving platform
         //i need the rigidbody variable to controll the platform movement instead of gameobject
         //in start we need the to get the rigidbody
         //i need variables for the start point and endpoint
@@ -16,55 +17,66 @@ namespace Hypercasual_Rukajuu
         //i need to figure out how to stop the platform when it gets to a certain position
         //this platform need to move every frame so update
         #endregion
+        #region Psuedocode for moving the platform between two points
+        //i need variables for the 2 points the two points. this are both tranforms
+        //in update i need to tell the rigidbody to move only upto the opposite boundary
+        #endregion
         #region Variables
         //responsible for moving
-        [SerializeField] private Rigidbody2D rb;
-        [SerializeField] private float moveSpeed;
-        public bool platformIsMoving;
+         private Rigidbody2D rb;
+        [SerializeField] protected float moveSpeed;
         //move between these two points
-        [SerializeField] Transform leftMostPosition;
-        [SerializeField] Transform rightMostPosition;
-        public bool boundaryReached;
-        //responsible for stopping the platform
-        [SerializeField] private bool platformStopped;
-        //[SerializeField] private bool isStopped;
+         Transform leftMostPosition;
+         Transform rightMostPosition;
+        //start couroutine
+        [SerializeField] protected float waitTime;
+        //[SerializeField] private GameObject platform;
+
         #endregion
         private void Start()
         {
             rb = GetComponent<Rigidbody2D>();
-            
+
         }
         private void Update()
         {
             MoveGameObject();
-           
         }
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.black;
-            Gizmos.DrawWireSphere(leftMostPosition.position, .3f);
-            Gizmos.DrawWireSphere(rightMostPosition.position, .3f);
-        }
-        void MoveGameObject()
+        
+         protected void MoveGameObject()
         {
             transform.Translate(Vector3.left * moveSpeed * Time.deltaTime);
-            
-            platformIsMoving = true;
         }
+
+
         private void OnCollisionEnter2D(Collision2D collision)
         {
             if (collision.gameObject.CompareTag("Drake"))
             {
-                platformIsMoving = false;
+                //landing drake on the player
                 moveSpeed = 0f;
                 rb.isKinematic = false;
                 rb.gravityScale = 1f;
+
+            }
+            if (collision.gameObject.CompareTag("Boundary"))
+            {
+                BoundaryReached();
             }
         }
-        void StopPlatform()
+        IEnumerator WaitBeforePingPong()
         {
-            platformStopped = true;
-            //Vector3.zero;
+            Debug.Log("Insidewaitbeforepingpong");
+            float moveSpeedStore = moveSpeed;
+            moveSpeed = 0f;
+            yield return new WaitForSeconds(waitTime);
+            moveSpeed = moveSpeedStore * -1;
+
+        }
+        void BoundaryReached()
+        {
+           
+            StartCoroutine(WaitBeforePingPong());
         }
     }
 }
