@@ -26,12 +26,15 @@ namespace Hypercasual_Rukajuu
          private Rigidbody2D rb;
         [SerializeField] protected float moveSpeed;
         //move between these two points
-         Transform leftMostPosition;
-         Transform rightMostPosition;
+          Transform leftMostPosition;
+          Transform rightMostPosition;
         //start couroutine
         [SerializeField] protected float waitTime;
         //[SerializeField] private GameObject platform;
-
+        private float moveSpeedStore;
+        //check to see if platform is stacked
+        [SerializeField] private bool isStacked;
+        
         #endregion
         private void Start()
         {
@@ -41,6 +44,7 @@ namespace Hypercasual_Rukajuu
         private void Update()
         {
             MoveGameObject();
+            
         }
         
          protected void MoveGameObject()
@@ -53,12 +57,10 @@ namespace Hypercasual_Rukajuu
         {
             if (collision.gameObject.CompareTag("Drake"))
             {
-                //landing drake on the player
-                moveSpeed = 0f;
-                rb.isKinematic = false;
-                rb.gravityScale = 1f;
-
+                //landing drake on the platform
+                IsStacked();
             }
+           
             if (collision.gameObject.CompareTag("Boundary"))
             {
                 BoundaryReached();
@@ -66,17 +68,25 @@ namespace Hypercasual_Rukajuu
         }
         IEnumerator WaitBeforePingPong()
         {
-            Debug.Log("Insidewaitbeforepingpong");
-            float moveSpeedStore = moveSpeed;
+            moveSpeedStore = moveSpeed;
             moveSpeed = 0f;
             yield return new WaitForSeconds(waitTime);
-            moveSpeed = moveSpeedStore * -1;
+            moveSpeed = -moveSpeedStore;
+            
+            Debug.Log("Go Back");
 
         }
         void BoundaryReached()
         {
-           
             StartCoroutine(WaitBeforePingPong());
+        }
+        public void IsStacked()
+        {
+            moveSpeed = 0f;
+            Debug.Log(moveSpeed);
+            rb.isKinematic = false;
+            rb.gravityScale = 1f;
+            isStacked = true;
         }
     }
 }

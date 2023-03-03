@@ -40,6 +40,7 @@ namespace Hypercasual_Rukajuu
                 rb.AddForce(Vector2.up * jump_Force, ForceMode2D.Impulse);
                 Debug.Log(jump_Force);
             }
+
         }
     }
 }
